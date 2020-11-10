@@ -69,9 +69,11 @@ void Algorithm() {
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> prob(0, 1);
 
+
     auto population = fill_population(0, 2, -2, 2);
     std::sort(population.begin(), population.end());
     print_results(population);
+
 
     for (size_t i = 0; i < generations; i++) {
         for (size_t j = 0; j < population.size(); j++) {
