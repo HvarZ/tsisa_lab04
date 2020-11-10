@@ -1,3 +1,0 @@
-/Users/zahar/CLionProjects/tsisa_rk2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/zahar/CLionProjects/tsisa_rk2/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/zahar/CLionProjects/tsisa_rk2/cmake-build-debug/CMakeFiles/tsisa_rk2.dir
