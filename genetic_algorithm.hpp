@@ -82,16 +82,23 @@ void genetic_algorithm() {
         for (size_t j = 0; j < 4; j++) { // crossover
             for (size_t k = 0; k < 4; k++) {
                 if (j == k) continue;
-                count++;
                 children[count] = Point(population[j].x, population[k].y);
+                count++;
             }
         }
-        std::copy(children.begin(), children.begin(), population.end());
+        for (size_t child = 0; child < 12; child++) {
+            population.push_back(children[child]);
+        }
+
         for (auto& individual : population) { // mutation
             auto buf_prob = random(0, 1);
             if (buf_prob < probability) {
                 individual.x = fmod(individual.x * random(0, 2), 2);
-                individual.y = fmod(individual.x * random(0, 2), 2);
+                if (individual.y < 0) {
+                    individual.y = -fmod(individual.x * random(0, 2), 2);
+                }
+                else
+                    individual.y = fmod(individual.x * random(0, 2), 2);
             }
         }
         std::sort(population.begin(), population.end()); // selection
