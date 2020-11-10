@@ -30,15 +30,22 @@ struct Point {
         y = 0;
         fit = function(x, y);
     }
-
+    auto operator<(const Point& point) const noexcept -> bool {
+        return fit < point.fit;
+    }
 };
 
-auto SortFunc(const Point& point1, const Point& point2) {
-    return point1.fit > point2.fit;
+
+auto random(const double a, const double b) -> double {
+    if (a >= b) throw std::logic_error("Invalid argument");
+    std::random_device rd;
+    std::mt19937_64 rng(rd());
+    std::uniform_real_distribution<double> rand(a, b);
+    return rand(rng);
 }
 
 
-auto random_values(const double x1, const double x2, const double y1, const double y2) -> Point {
+auto random_point(const double x1, const double x2, const double y1, const double y2) -> Point {
     if (x1 >= x2 || y1 >= y2) throw std::invalid_argument("Invalid segment");
     std::random_device rd;
     std::mt19937_64 rng(rd());
@@ -51,7 +58,7 @@ auto fill_population(const double x1, const double x2, const double y1, const do
     const size_t number_of_points = 4;
     std::vector<Point> result(0);
     for (size_t i = 0; i < number_of_points; i++) {
-        result.push_back(random_values(x1, x2, y1, y2));
+        result.push_back(random_point(x1, x2, y1, y2));
     }
     return result;
 }
@@ -64,55 +71,39 @@ void print_results(const std::vector<Point>& points) {
      }
 }
 
-void Algorithm() {
+void genetic_algorithm() {
     const double probability = 0.3;
-    const size_t generations = 100;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> prob(0, 1);
-    std::uniform_real_distribution<double> dis_mut(-5, 5);
-
+    const size_t number_generation = 10;
     auto population = fill_population(0, 2, -2, 2);
-    std::sort(population.begin(), population.end(), SortFunc);
-    print_results(population);
+    std::vector<Point> children(12);
 
-    for (size_t i = 0; i < generations; i++) {
-        for (auto &point : population) {
-            auto p = prob(gen);
-            if (p < probability) {
-                point.x = fmod(point.x * dis_mut(gen), 1);
-                point.y = fmod(point.y * dis_mut(gen), 1);
-                point.fit = function(point.x, point.y);
+    for (size_t i = 0; i < number_generation; i++) {
+        size_t count = 0;
+        for (size_t j = 0; j < 4; j++) { // crossover
+            for (size_t k = 0; k < 4; k++) {
+                if (j == k) continue;
+                count++;
+                children[count] = Point(population[j].x, population[k].y);
             }
         }
-        std::sort(population.begin(), population.end(), SortFunc);
-        size_t buf = 0;
-        std::vector<Point> new_population(4);
-        if (population[0].fit != population[1].fit) {
-            buf = 1;
-        } else {
-            buf = 2;
+        std::copy(children.begin(), children.begin(), population.end());
+        for (auto& individual : population) { // mutation
+            auto buf_prob = random(0, 1);
+            if (buf_prob < probability) {
+                individual.x = fmod(individual.x * random(0, 2), 2);
+                individual.y = fmod(individual.x * random(0, 2), 2);
+            }
         }
-
-        new_population[0].x = population[0].x;
-        new_population[0].y = population[buf].y;
-        new_population[0].fit = function(new_population[0].x, new_population[0].y);
-
-        new_population[1].x = population[buf].x;
-        new_population[1].y = population[0].y;
-        new_population[1].fit = function(new_population[1].x, new_population[1].y);
-
-        new_population[2].x = population[0].x;
-        new_population[2].y = population[buf + 1].y;
-        new_population[2].fit = function(new_population[2].x, new_population[2].y);
-
-        new_population[3].x = population[buf + 1].x;
-        new_population[3].y = population[0].y;
-        new_population[3].fit = function(new_population[3].x, new_population[3].y);
-
-        std::sort(new_population.begin(), new_population.end(), SortFunc);
-        std::cout << "Iteration # " << i + 1 << std::endl;
+        std::sort(population.begin(), population.end()); // selection
+        std::vector<Point> new_population(4);
+        count = 15;
+        for (auto& individual : new_population) {
+            individual = population[count];
+            count--;
+        }
+        std::cout << "Generation # " << i + 1 << std::endl;
         print_results(new_population);
+        population = new_population;
     }
 }
 

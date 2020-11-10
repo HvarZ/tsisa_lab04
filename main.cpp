@@ -2,6 +2,6 @@
 #include "genetic_algorithm.hpp"
 
 int main() {
-    Algorithm();
+    genetic_algorithm();
     return 0;
 }
