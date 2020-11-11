@@ -19,22 +19,18 @@ struct Point {
     double y;
     double fit;
 
+    Point() = default;
+
     Point(const double x1, const double y1) {
         x = x1;
         y = y1;
         fit = function(x, y);
     }
 
-    Point() {
-        x = 0;
-        y = 0;
-        fit = function(x, y);
-    }
     auto operator<(const Point& point) const noexcept -> bool {
         return fit < point.fit;
     }
 };
-
 
 auto random(const double a, const double b) -> double {
     if (a >= b) throw std::logic_error("Invalid argument");
@@ -44,14 +40,8 @@ auto random(const double a, const double b) -> double {
     return rand(rng);
 }
 
-
 auto random_point(const double x1, const double x2, const double y1, const double y2) -> Point {
-    if (x1 >= x2 || y1 >= y2) throw std::invalid_argument("Invalid segment");
-    std::random_device rd;
-    std::mt19937_64 rng(rd());
-    std::uniform_real_distribution<double> rand_x(x1, x2);
-    std::uniform_real_distribution<double> rand_y(y1, y2);
-    return Point(rand_x(rng), rand_y(rng));
+    return Point(random(x1, x2), random(y1, y2));
 }
 
 auto fill_population(const double x1, const double x2, const double y1, const double y2) -> std::vector<Point> {
@@ -62,8 +52,6 @@ auto fill_population(const double x1, const double x2, const double y1, const do
     }
     return result;
 }
-
-
 
 void print_results(const std::vector<Point>& points) {
     for (const auto& i : points) {
@@ -94,11 +82,7 @@ void genetic_algorithm() {
             auto buf_prob = random(0, 1);
             if (buf_prob < probability) {
                 individual.x = fmod(individual.x * random(0, 2), 2);
-                if (individual.y < 0) {
-                    individual.y = -fmod(individual.x * random(0, 2), 2);
-                }
-                else
-                    individual.y = fmod(individual.x * random(0, 2), 2);
+                individual.y = fmod(individual.x * random(-2, 2), 2);
             }
         }
         std::sort(population.begin(), population.end()); // selection
@@ -113,8 +97,5 @@ void genetic_algorithm() {
         population = new_population;
     }
 }
-
-
-
 
 #endif //TSISA_RK2_GENETIC_ALGORITHM_HPP
