@@ -83,6 +83,7 @@ void genetic_algorithm() {
             if (buf_prob < probability) {
                 individual.x = fmod(individual.x * random(0, 2), 2);
                 individual.y = fmod(individual.x * random(-2, 2), 2);
+                individual.fit = function(individual.x, individual.y);
             }
         }
         std::sort(population.begin(), population.end()); // selection
