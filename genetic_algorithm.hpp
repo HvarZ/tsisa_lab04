@@ -27,6 +27,13 @@ struct Point {
         fit = function(x, y);
     }
 
+    Point& operator=(const Point& point) {
+        x = point.x;
+        y = point.y;
+        fit = function(x, y);
+        return *this;
+    }
+
     auto operator<(const Point& point) const noexcept -> bool {
         return fit < point.fit;
     }
@@ -59,11 +66,14 @@ void print_results(const std::vector<Point>& points) {
      }
 }
 
-void genetic_algorithm() {
+void genetic_algorithm(double func(double, double), double x1, double x2, double y1, double y2) {
     const double probability = 0.3;
-    const size_t number_generation = 10;
-    auto population = fill_population(0, 2, -2, 2);
-    std::vector<Point> children(12);
+    const double left_mutation_number = -100;
+    const double right_mutation_number = 100;
+    const double number_children = 12;
+    const size_t number_generation = 1000;
+    auto population = fill_population(x1, x2, y1, y2);
+    std::vector<Point> children(number_children);
 
     for (size_t i = 0; i < number_generation; i++) {
         size_t count = 0;
@@ -74,16 +84,16 @@ void genetic_algorithm() {
                 count++;
             }
         }
-        for (size_t child = 0; child < 12; child++) {
-            population.push_back(children[child]);
+        for (const auto& child : children) {
+            population.push_back(child);
         }
 
         for (auto& individual : population) { // mutation
             auto buf_prob = random(0, 1);
             if (buf_prob < probability) {
-                individual.x = fmod(individual.x * random(0, 2), 2);
-                individual.y = fmod(individual.x * random(-2, 2), 2);
-                individual.fit = function(individual.x, individual.y);
+                individual.x = fmod(individual.x * random(left_mutation_number, right_mutation_number), 2);
+                individual.y = fmod(individual.x * random(left_mutation_number, right_mutation_number), 2);
+                individual.fit = func(individual.x, individual.y);
             }
         }
         std::sort(population.begin(), population.end()); // selection
